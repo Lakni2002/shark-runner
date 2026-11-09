@@ -1,8 +1,9 @@
 
 import { RULES } from "../config/levels";
 import { FlagIcon, StarIcon, Heart } from "./GameInfo";
+import PlayerChip from "./PlayerChip";
 
-export default function GameNavbar({ level, stats, onExit, onOpenMenu, menuOpen }) {
+export default function GameNavbar({ level, stats, playerName, onExit, onOpenMenu, menuOpen }) {
   const hearts = (size) => (
     <span className="flex items-center gap-0.5" role="img" aria-label={`${stats.lives} of ${RULES.lives} lives left`}>
       {Array.from({ length: RULES.lives }, (_, i) => <Heart key={i} full={i < stats.lives} className={size} />)}
@@ -13,7 +14,10 @@ export default function GameNavbar({ level, stats, onExit, onOpenMenu, menuOpen 
     <header className="relative z-20 mx-2 mt-2 rounded-2xl bg-white/35 backdrop-blur-sm sm:mx-4 lg:mx-6 lg:mt-3">
       {/* ---------- Laptop ---------- */}
       <div className="hidden items-center justify-between gap-3 px-4 py-2 lg:flex">
-        <img src="/assets/login/logo.png" alt="Shark Runner" className="h-10 w-auto" />
+        <div className="flex min-w-0 items-center gap-3">
+          <img src="/assets/login/logo.png" alt="Shark Runner" className="h-10 w-auto" />
+          {playerName && <PlayerChip name={playerName} />}
+        </div>
         <div className="flex items-center gap-2">
           <Chip label="Distance" value={`${stats.distance} m`} />
           <Chip label="Score" value={stats.score.toLocaleString()} />
@@ -30,7 +34,12 @@ export default function GameNavbar({ level, stats, onExit, onOpenMenu, menuOpen 
         <button type="button" onClick={onExit} aria-label="Back to the level map" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0b3f8f] text-xl font-bold">
           ‹
         </button>
-        <span className="hidden truncate pr-1 font-extrabold sm:inline">{level.name}</span>
+        {/* Tablet: player name (phones show it in the ☰ menu – not enough room here) */}
+        {playerName && (
+          <span className="hidden min-w-0 sm:flex">
+            <PlayerChip name={playerName} />
+          </span>
+        )}
 
         <div className="ml-auto flex min-w-0 items-center gap-1.5">
           <Pill label="Distance"><FlagIcon className="h-4 w-4" />{stats.distance} m</Pill>

@@ -14,7 +14,7 @@ const START_STATS = { score: 0, lives: RULES.lives, fish: 0, fishSinceChest: 0, 
 // Touch screen? (used to show "drag to steer" instead of arrow keys)
 const isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 
-export default function GamePage({ level, hasNextLevel, onNextLevel, onExit }) {
+export default function GamePage({ user, level, hasNextLevel, onNextLevel, onExit }) {
   const [stats, setStats] = useState(START_STATS);
   const [puzzleMode, setPuzzleMode] = useState(null); // "treasure" | "second-chance" | null
   const [ending, setEnding] = useState(null); // { type: "complete" | "over", stats }
@@ -109,7 +109,7 @@ export default function GamePage({ level, hasNextLevel, onNextLevel, onExit }) {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#0d5f8f] font-ui text-white">
       <img src={level.background} alt="" className="absolute inset-0 h-full w-full object-cover" />
 
-      <GameNavbar level={level} stats={stats} onExit={onExit} onOpenMenu={openMenu} menuOpen={menuOpen} />
+      <GameNavbar level={level} stats={stats} playerName={user?.username} onExit={onExit} onOpenMenu={openMenu} menuOpen={menuOpen} />
 
       {/* ---------- Main area: left panel | game | right panel ---------- */}
       <main className="relative z-10 flex min-h-0 flex-1 gap-4 p-2 sm:p-4 lg:p-5">
@@ -177,7 +177,14 @@ export default function GamePage({ level, hasNextLevel, onNextLevel, onExit }) {
           <button type="button" aria-label="Close menu" onClick={closeMenu} className="absolute inset-0 bg-[#04203f]/60" />
           <nav id="game-menu" aria-label="Game menu" className="absolute inset-y-0 right-0 flex w-[min(88vw,360px)] flex-col gap-5 overflow-y-auto bg-[#0d4a8f] p-5 shadow-2xl">
             <div className="flex items-center justify-between">
-              <p className="font-game text-2xl">Level {level.id}</p>
+              <div className="min-w-0">
+                <p className="font-game text-2xl">Level {level.id} · {level.name}</p>
+                {user?.username && (
+                  <p className="truncate text-sm font-semibold text-[#cdeeff]">
+                    Playing as <span className="font-extrabold text-white">{user.username}</span>
+                  </p>
+                )}
+              </div>
               <button type="button" onClick={closeMenu} autoFocus aria-label="Close menu" className="grid h-10 w-10 place-items-center rounded-full border-2 border-white text-xl font-bold">✕</button>
             </div>
 

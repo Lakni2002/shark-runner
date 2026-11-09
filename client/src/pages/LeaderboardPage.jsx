@@ -1,15 +1,12 @@
-// Leaderboard page: filters (All Time / This Week, level, search), the table and page buttons.
-// It keeps the filter choices, asks leaderboardService for the matching page, and passes the rows
-// to LeaderboardTable to display (low coupling).
-// Parts of this file were written with help from Claude (AI), then reviewed and modified by me.
-// Background in /assets/leaderboard/ – exported from my Figma design.
+
 import { useEffect, useState } from "react";
 import { LEVELS } from "../config/levels";
 import { getLeaderboard } from "../api/leaderboardService";
 import LeaderboardTable from "../components/LeaderboardTable";
 import Bubbles from "../components/Bubbles";
+import TopNavbar from "../components/TopNavbar";
 
-export default function LeaderboardPage({ onLevels, onLogout }) {
+export default function LeaderboardPage({ user, onLevels, onLogout }) {
   const [period, setPeriod] = useState("all"); // "all" | "week"
   const [level, setLevel] = useState("all"); // "all" | 1-4
   const [searchText, setSearchText] = useState(""); // what is typed
@@ -54,14 +51,7 @@ export default function LeaderboardPage({ onLevels, onLogout }) {
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-5 px-4 py-5">
         {/* Top bar */}
-        <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/45 px-4 py-3 backdrop-blur-sm">
-          <img src="/assets/login/logo.png" alt="Shark Runner" className="h-9 w-auto sm:h-10" />
-          <nav className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <NavButton onClick={onLevels}>▶ Levels</NavButton>
-            <NavButton active>🏆 Leaderboard</NavButton>
-            <NavButton onClick={onLogout}>↪ Logout</NavButton>
-          </nav>
-        </header>
+        <TopNavbar active="leaderboard" playerName={user?.username} onLevels={onLevels} onLogout={onLogout} />
 
         {/* Title + filters */}
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -168,15 +158,3 @@ export default function LeaderboardPage({ onLevels, onLogout }) {
   );
 }
 
-function NavButton({ children, onClick, active }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-current={active ? "page" : undefined}
-      className={`rounded-xl border-2 px-3 py-1.5 text-sm font-bold sm:px-4 sm:py-2 ${active ? "border-[#ffd34d] bg-[#1663b8]" : "border-transparent bg-[#0b3f8f] hover:bg-[#1663b8]"}`}
-    >
-      {children}
-    </button>
-  );
-}

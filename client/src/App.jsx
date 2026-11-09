@@ -1,6 +1,4 @@
-// App decides which page to show and keeps track of who is logged in.
-// Pages only report events (onStart, onLoggedIn, onPlay...) – App decides where to go.
-// Parts of this file were written with help from Claude (AI), then reviewed and modified by me.
+
 import { useState } from "react";
 import WelcomePage from "./pages/WelcomePage";
 import AuthPage from "./pages/AuthPage";
@@ -47,6 +45,7 @@ export default function App() {
   if (page === "game")
     return (
       <GamePage
+        user={user}
         key={level.id} // a new level = a fresh game page
         level={level}
         hasNextLevel={Boolean(nextLevel)}
@@ -56,7 +55,7 @@ export default function App() {
     );
 
   if (page === "leaderboard")
-    return <LeaderboardPage onLevels={() => setPage("levelmap")} onLogout={handleLogout} />;
+    return <LeaderboardPage user={user} onLevels={() => setPage("levelmap")} onLogout={handleLogout} />;
 
   return null;
 }
