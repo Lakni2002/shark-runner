@@ -1,0 +1,11 @@
+# packages (re-install with npm install)
+node_modules/
+
+# build output
+dist/
+
+# secrets
+.env
+
+# saved users and progress (private data)
+server/data/
