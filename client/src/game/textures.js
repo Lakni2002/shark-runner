@@ -1,4 +1,4 @@
-// Draws the game pictures with code and saves them as textures (the shark is a PNG sprite sheet).
+// Draws the game pictures with code and saves them as textures (the shark, fish and seaweed are PNG sprite sheets).
 // Parts of this file were written with help from Claude (AI), then reviewed and modified by me.
 
 export const TILE_W = 480;
@@ -17,25 +17,6 @@ export function makeTextures(scene, waterColor) {
     g.fillStyle(0xffffff, 0.14); // tiny specks
     for (let i = 0; i < 45; i++) g.fillCircle((i * 97) % TILE_W, (i * 151) % TILE_H, (i % 3) + 1);
     g.generateTexture(waterKey, TILE_W, TILE_H);
-    g.destroy();
-  }
-
-  // --- Orange fish, facing left (46 x 30) ---
-  if (!scene.textures.exists("fish")) {
-    const g = scene.add.graphics();
-    g.lineStyle(2.5, OUTLINE, 1);
-    g.fillStyle(0xff9f1c);
-    g.fillTriangle(44, 5, 44, 25, 32, 15); // tail
-    g.strokeTriangle(44, 5, 44, 25, 32, 15);
-    g.fillEllipse(19, 15, 30, 20); // body
-    g.strokeEllipse(19, 15, 30, 20);
-    g.fillStyle(0xffd27a);
-    g.fillEllipse(16, 19, 16, 7); // light belly
-    g.fillStyle(0xffffff);
-    g.fillCircle(11, 12, 3.5); // eye
-    g.fillStyle(OUTLINE);
-    g.fillCircle(10.5, 12, 1.8);
-    g.generateTexture("fish", 46, 30);
     g.destroy();
   }
 

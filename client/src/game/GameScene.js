@@ -1,9 +1,4 @@
-// The game itself: scrolling water, the shark, fish, mines and treasure chests.
-// The scene only runs the gameplay. It TELLS React what happens through the EventBus
-// ("chest-collected", "out-of-lives", "level-complete"...) and LISTENS for React's answers
-// ("puzzle-result", "pause-game"...). It never shows pages or calls the server itself.
-// Parts of this file were written with help from Claude (AI), then reviewed and modified by me.
-// shark-sheet.png – made from my own shark artwork (frames created with help from Claude AI).
+
 import Phaser from "phaser";
 import { EventBus } from "./EventBus";
 import { makeTextures } from "./textures";
@@ -21,6 +16,7 @@ const SHARK_TOP = HEIGHT * 0.45; // the shark can't swim higher than this
 const SPAWN_EVERY = 850; // ms between new fish or mines
 const PIXELS_PER_METRE = 20;
 const SAFE_TIME = 1500; // ms the shark can't be hurt after hitting a mine
+const SEAWEED_EVERY_PX = 420; // a new seaweed patch after this much scrolling (decoration only)
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -34,6 +30,8 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.spritesheet("shark", "/assets/game/shark-sheet.png", { frameWidth: 160, frameHeight: 230 });
+    this.load.spritesheet("fish", "/assets/game/fish-sheet.png", { frameWidth: 96, frameHeight: 96 });
+    this.load.spritesheet("seaweed", "/assets/game/seaweed-sheet.png", { frameWidth: 130, frameHeight: 190 });
   }
 
   create() {
@@ -55,6 +53,11 @@ export class GameScene extends Phaser.Scene {
     // ---- Scrolling water ----
     this.water = this.add.tileSprite(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, `water-${this.level.waterColor.toString(16)}`);
 
+    // ---- Seaweed: decoration only (no physics, no collisions), scrolls with the water ----
+    this.seaweed = this.add.group();
+    this.nextSeaweedAt = 0;
+    for (let y = 80; y < HEIGHT; y += 300) this.addSeaweed(y); // some already on screen at the start
+
     // ---- Groups of things floating down ----
     this.fishGroup = this.physics.add.group();
     this.mineGroup = this.physics.add.group();
@@ -68,6 +71,12 @@ export class GameScene extends Phaser.Scene {
         frameRate: 12,
         repeat: -1,
       });
+    }
+    if (!this.anims.exists("fish-swim")) {
+      this.anims.create({ key: "fish-swim", frames: this.anims.generateFrameNumbers("fish", { start: 0, end: 7 }), frameRate: 10, repeat: -1 });
+    }
+    if (!this.anims.exists("seaweed-sway")) {
+      this.anims.create({ key: "seaweed-sway", frames: this.anims.generateFrameNumbers("seaweed", { start: 0, end: 3 }), frameRate: 4, yoyo: true, repeat: -1 });
     }
     this.shark = this.physics.add.sprite(WIDTH / 2, HEIGHT - 110, "shark").setScale(0.5).setDepth(5);
     this.shark.play("swim");
@@ -111,6 +120,7 @@ export class GameScene extends Phaser.Scene {
     // 1. Scroll the water and count the distance
     this.water.tilePositionY -= this.speed * dt;
     this.distancePx += this.speed * dt;
+    this.moveSeaweed(this.speed * dt);
     const metres = this.distancePx / PIXELS_PER_METRE;
 
     // 2. Every 75 m → faster
@@ -170,22 +180,49 @@ export class GameScene extends Phaser.Scene {
     const isMine = Math.random() < this.level.mineChance;
 
     if (isMine) {
-      const mine = this.mineGroup.create(x, -40, "mine");
+      const mine = this.mineGroup.create(x, -40, "mine").setDepth(3);
       mine.body.setVelocityY(this.speed);
       mine.body.setCircle(16, 12, 12); // only the body hurts, not the spikes
       this.tweens.add({ targets: mine, angle: 360, duration: 6000, repeat: -1 }); // slow spin
     } else {
-      const fish = this.fishGroup.create(x, -30, "fish");
+      const fish = this.fishGroup.create(x, -50, "fish").setScale(0.7).setDepth(3);
       fish.body.setVelocityY(this.speed);
-      this.tweens.add({ targets: fish, angle: { from: -8, to: 8 }, duration: 350, yoyo: true, repeat: -1 });
+      fish.body.setCircle(30, 18, 18); // hit area = the fish, not the whole bubble
+      fish.play({ key: "fish-swim", startFrame: Phaser.Math.Between(0, 7) }); // tail wiggles
+      // swims a little from side to side
+      const drift = Phaser.Math.Between(12, 24) * (Math.random() < 0.5 ? -1 : 1);
+      const toX = Phaser.Math.Clamp(x + drift, 40, WIDTH - 40);
+      this.tweens.add({ targets: fish, x: toX, angle: drift > 0 ? 8 : -8, duration: Phaser.Math.Between(700, 1000), ease: "Sine.easeInOut", yoyo: true, repeat: -1 });
     }
   }
 
   spawnChest() {
     this.chestOnScreen = true;
-    const chest = this.chestGroup.create(Phaser.Math.Between(60, WIDTH - 60), -40, "chest");
+    const chest = this.chestGroup.create(Phaser.Math.Between(60, WIDTH - 60), -40, "chest").setDepth(3);
     chest.body.setVelocityY(this.speed);
     this.tweens.add({ targets: chest, scale: { from: 1, to: 1.12 }, duration: 400, yoyo: true, repeat: -1 });
+  }
+
+  // ---- Seaweed (decoration) ----
+  addSeaweed(y) {
+    const leftSide = this.seaweed.getLength() % 2 === 0; // left, right, left, right…
+    const x = leftSide ? Phaser.Math.Between(40, 170) : Phaser.Math.Between(WIDTH - 170, WIDTH - 40);
+    const patch = this.add.sprite(x, y, "seaweed").setDepth(1).setAlpha(0.9).setScale(Phaser.Math.FloatBetween(0.8, 1.05));
+    patch.setFlipX(Math.random() < 0.5);
+    patch.play({ key: "seaweed-sway", startFrame: Phaser.Math.Between(0, 3) });
+    this.seaweed.add(patch);
+  }
+
+  moveSeaweed(pixels) {
+    this.seaweed.getChildren().forEach((patch) => {
+      patch.y += pixels;
+      if (patch.y > HEIGHT + 120) patch.destroy();
+    });
+    this.nextSeaweedAt -= pixels;
+    if (this.nextSeaweedAt <= 0) {
+      this.addSeaweed(-110);
+      this.nextSeaweedAt = SEAWEED_EVERY_PX + Phaser.Math.Between(-80, 120);
+    }
   }
 
   // ---- Collisions ----
