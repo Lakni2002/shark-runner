@@ -1,11 +1,10 @@
-// Shark Runner server – entry point.
-// Its only job is to set up Express and plug in the route modules (low coupling).
-// Parts of this file were written with help from Claude (AI), then reviewed and modified by me.
+
 import express from "express";
 import session from "express-session";
 import authRoutes from "./routes/authRoutes.js";
 import progressRoutes from "./routes/progressRoutes.js";
 import puzzleRoutes from "./routes/puzzleRoutes.js";
+import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 
 const app = express();
 const PORT = 3000;
@@ -31,6 +30,7 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/puzzle", puzzleRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 

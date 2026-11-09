@@ -49,6 +49,7 @@ export default function GamePage({ level, hasNextLevel, onNextLevel, onExit }) {
     setSaveMessage("Saving your result…");
     try {
       await saveResult(level.id, {
+        score: runStats.score,
         distance: runStats.distance,
         stars: type === "complete" ? runStats.stars : 0,
         completed: type === "complete",

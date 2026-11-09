@@ -1,10 +1,9 @@
-// All level settings in ONE place. The level map AND the game read this list.
-// Adding a new level = adding one object here; no other code needs to change.
-// Parts of this file were written with help from Claude (AI), then reviewed and modified by me.
+
 export const LEVELS = [
   {
     id: 1,
     name: "Shallow Reef",
+    accent: "#ff8fb1", // colour used for this level's badge
     description: "Diving into the colorful reef",
     targetMetres: 500,
     background: "/assets/game/levels/shallow-reef.png", // page background (from Figma)
@@ -15,6 +14,7 @@ export const LEVELS = [
   {
     id: 2,
     name: "Kelp Forest",
+    accent: "#5ee35b", // colour used for this level's badge
     description: "Reaching the kelp forest",
     targetMetres: 800,
     background: "/assets/game/levels/kelp-forest.png",
@@ -25,6 +25,7 @@ export const LEVELS = [
   {
     id: 3,
     name: "Shipwreck",
+    accent: "#ff9f1c", // colour used for this level's badge
     description: "Explore the sunken ship",
     targetMetres: 1200,
     background: "/assets/game/levels/shipwreck.png",
@@ -35,6 +36,7 @@ export const LEVELS = [
   {
     id: 4,
     name: "Deep Trench",
+    accent: "#8f9bff", // colour used for this level's badge
     description: "Reach the deep ocean",
     targetMetres: 1800,
     background: "/assets/game/levels/deep-trench.png",

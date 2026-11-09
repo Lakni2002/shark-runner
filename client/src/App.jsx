@@ -6,6 +6,7 @@ import WelcomePage from "./pages/WelcomePage";
 import AuthPage from "./pages/AuthPage";
 import LevelMapPage from "./pages/LevelMapPage";
 import GamePage from "./pages/GamePage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import { LEVELS } from "./config/levels";
 import { logout } from "./api/authService";
 
@@ -54,13 +55,8 @@ export default function App() {
       />
     );
 
-  // Temporary screen until the leaderboard page is built
-  return (
-    <div className="flex h-dvh flex-col items-center justify-center gap-4 text-center">
-      <p className="text-xl">Leaderboard coming soon</p>
-      <button onClick={() => setPage("levelmap")} className="rounded-xl bg-aqua px-6 py-3 font-bold text-navy">
-        Back to map
-      </button>
-    </div>
-  );
+  if (page === "leaderboard")
+    return <LeaderboardPage onLevels={() => setPage("levelmap")} onLogout={handleLogout} />;
+
+  return null;
 }

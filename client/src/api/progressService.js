@@ -1,5 +1,3 @@
-// progressService: the ONLY place in the frontend that reads or saves level progress.
-// Parts of this file were written with help from Claude (AI), then reviewed and modified by me.
 
 async function request(url, options = {}) {
   let res;
@@ -24,9 +22,9 @@ export function getProgress() {
 }
 
 // Save a finished run (level complete or game over)
-export function saveResult(levelId, { distance, stars, completed }) {
+export function saveResult(levelId, { score, distance, stars, completed }) {
   return request(`/api/progress/${levelId}`, {
     method: "POST",
-    body: JSON.stringify({ distance, stars, completed }),
+    body: JSON.stringify({ score, distance, stars, completed }),
   });
 }
